@@ -178,11 +178,11 @@ class MangaDetailScraper:
             manga_dict = {
                 'title': manga_detail.title,
                 'short_title': manga_detail.short_title,
-                'url': manga_detail.url,
-                'status': manga_detail.status,
-                'genres': manga_detail.genres,
-                'summary': manga_detail.summary,
                 'chapter_count': manga_detail.chapter_count,
+                'url': manga_detail.url,
+                'genres': manga_detail.genres,
+                'status': manga_detail.status,
+                'summary': manga_detail.summary,
                 'image': manga_detail.image,
                 'related_manga': manga_detail.related_manga
             }

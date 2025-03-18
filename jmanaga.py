@@ -5,6 +5,8 @@ import json
 import logging
 from typing import List
 from dataclasses import dataclass
+from pathlib import Path
+from detail import MangaDetailScraper
 
 logging.basicConfig(
     level=logging.INFO,
@@ -97,11 +99,39 @@ def main():
     
     if manga_list:
         logger.info(f"Successfully scraped {len(manga_list)} manga titles")
-        scraper.save_to_json(manga_list)
         
-        # Print first 5 entries as sample
+        # 確保 docs 目錄存在
+        docs_dir = Path('docs')
+        docs_dir.mkdir(exist_ok=True)
+        
+        # 初始化 detail scraper
+        detail_scraper = MangaDetailScraper()
+        
+        # 處理每個漫畫
+        for manga in manga_list:
+            # 創建安全的文件名
+            safe_title = "".join(c for c in manga.title if c.isalnum() or c in (' ', '-', '_'))
+            safe_title = safe_title.strip()
+            json_path = docs_dir / f"{safe_title}.json"
+            
+            # 檢查文件是否存在
+            if not json_path.exists():
+                logger.info(f"Fetching details for: {manga.title}")
+                try:
+                    # 獲取並保存詳細信息
+                    manga_detail = detail_scraper.get_manga_detail(manga.url)
+                    if manga_detail:
+                        detail_scraper.save_to_json(manga_detail)
+                    else:
+                        logger.warning(f"Failed to get details for: {manga.title}")
+                except Exception as e:
+                    logger.error(f"Error processing {manga.title}: {e}")
+            else:
+                logger.info(f"Details already exist for: {manga.title}")
+        
+        # 打印樣本信息
         print("\nSample of manga list:")
-        for manga in manga_list[:5]:
+        for manga in manga_list[:5]:  # 只顯示前5個
             print(f"\nTitle: {manga.title}")
             print(f"URL: {manga.url}")
             print(f"Genres: {', '.join(manga.genres)}")
