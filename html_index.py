@@ -39,6 +39,18 @@ def generate_main_html(genres):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 添加寬度顯示元素 -->
+    <div id="debug-width" style="
+        position: fixed;
+        top: 0;
+        right: 0;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        font-size: 14px;
+        z-index: 9999;
+    "></div>
+
     <h1>Manga Genres</h1>
     <div class="genre-grid">
 """
