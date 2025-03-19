@@ -24,18 +24,26 @@ class GenreCounter:
         
         with open(filename, 'w', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['genre', 'manga_count'])  # 寫入標題行
-            writer.writerows(genre_counts)  # 寫入數據行
+            writer.writerow(['genre', 'manga_count'])
+            writer.writerows(genre_counts)
         
         return Path(filename).absolute()
 
-def main():
+def list_genres():
+    """
+    獲取所有 genre 並保存到 CSV 文件
+    返回: Path 對象，指向生成的 CSV 文件
+    """
     counter = GenreCounter()
     try:
         output_path = counter.save_to_csv()
         print(f"Genre counts saved to: {output_path}")
+        return output_path
     finally:
         counter.close()
+
+def main():
+    return list_genres()
 
 if __name__ == "__main__":
     main()

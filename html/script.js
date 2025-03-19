@@ -43,3 +43,35 @@ scrollTopBtn.onclick = () => {
         behavior: 'smooth'
     });
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mainContent = document.getElementById('main-content');
+    const genreContent = document.getElementById('genre-content');
+    const genreDetail = document.getElementById('genre-detail');
+    const backButton = document.getElementById('back-to-genres');
+    const scrollTopButton = document.getElementById('scroll-top');
+
+    // 返回按鈕處理
+    backButton.addEventListener('click', function() {
+        genreContent.style.display = 'none';
+        mainContent.style.display = 'block';
+        window.scrollTo(0, 0);
+    });
+
+    // 回到頂部按鈕處理
+    scrollTopButton.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // 顯示/隱藏回到頂部按鈕
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 100) {
+            scrollTopButton.style.display = 'block';
+        } else {
+            scrollTopButton.style.display = 'none';
+        }
+    });
+});

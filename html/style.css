@@ -1,7 +1,12 @@
 body { 
     font-family: Arial, sans-serif; 
-    margin: 20px; 
+    margin: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
+
+/* 原有的 manga 相關樣式保持不變 */
 .manga-grid { 
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -64,4 +69,72 @@ body {
     border-radius: 5px;
     cursor: pointer;
     display: none;
+}
+
+/* 新增 genre 相關樣式 */
+.genre-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.genre-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.genre-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.genre-name {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.manga-count {
+    color: #666;
+    font-size: 0.9em;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+/* 新增樣式 */
+#genre-content {
+    padding: 20px;
+}
+
+.back-button {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: #e0e0e0;
+}
+
+#main-content, #genre-content {
+    transition: opacity 0.3s;
+}
+
+/* 確保內容區域填滿視窗 */
+#genre-detail {
+    min-height: 500px;
+    padding: 20px 0;
 }

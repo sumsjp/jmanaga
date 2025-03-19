@@ -10,37 +10,58 @@ class MangaQuery:
     def close(self):
         self.driver.close()
 
-    def get_manga_by_genre(self, genre_name):
+    def get_manga_by_genres(self, genre_names):
         with self.driver.session() as session:
-            result = session.run("""
-                MATCH (m:Manga)-[:HAS_GENRE]->(g:Genre {name: $genre_name})
-                OPTIONAL MATCH (m)-[:HAS_GENRE]->(og:Genre)
-                WITH m, 
-                     collect(DISTINCT og.name) as genres
-                RETURN m.name as name,
-                       m.title as title,
-                       m.chapters as chapters,
-                       m.image as image,
-                       m.url as url,
-                       genres
-                ORDER BY m.chapters DESC
-            """, genre_name=genre_name)
+            # 如果只有一個 genre，使用原來的查詢
+            if len(genre_names) == 1:
+                result = session.run("""
+                    MATCH (m:Manga)-[:HAS_GENRE]->(g:Genre {name: $genre_name})
+                    OPTIONAL MATCH (m)-[:HAS_GENRE]->(og:Genre)
+                    WITH m, 
+                         collect(DISTINCT og.name) as genres
+                    RETURN m.name as name,
+                           m.title as title,
+                           m.chapters as chapters,
+                           m.image as image,
+                           m.url as url,
+                           genres
+                    ORDER BY m.chapters DESC
+                """, genre_name=genre_names[0])
+            else:
+                # 如果有兩個 genre，使用 OR 條件
+                result = session.run("""
+                    MATCH (m:Manga)-[:HAS_GENRE]->(g:Genre)
+                    WHERE g.name IN $genre_names
+                    OPTIONAL MATCH (m)-[:HAS_GENRE]->(og:Genre)
+                    WITH m, 
+                         collect(DISTINCT og.name) as genres
+                    RETURN m.name as name,
+                           m.title as title,
+                           m.chapters as chapters,
+                           m.image as image,
+                           m.url as url,
+                           genres
+                    ORDER BY m.chapters DESC
+                """, genre_names=genre_names)
             
             return list(result)
 
-    def generate_html(self, genre_name):
-        manga_list = self.get_manga_by_genre(genre_name)
+    def generate_html(self, genre_names):
+        manga_list = self.get_manga_by_genres(genre_names)
+        
+        # 生成標題
+        title = " or ".join(genre_names)
         
         html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Manga List - {html.escape(genre_name)}</title>
+    <title>Manga List - {html.escape(title)}</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Manga List - {html.escape(genre_name)}</h1>
+    <h1>Manga List - {html.escape(title)}</h1>
     <div class="manga-grid">
 """
 
@@ -70,20 +91,31 @@ class MangaQuery:
 </html>
 """
 
+        # 生成文件名
+        filename = "_".join(genre_names) + ".html"
+        
         # Save HTML file
         output_dir = Path("html")
         output_dir.mkdir(exist_ok=True)
-        output_path = output_dir / f"{genre_name}.html"
+        output_path = output_dir / filename
         output_path.write_text(html_content, encoding="utf-8")
         return output_path
 
 def main():
     query = MangaQuery()
     try:
-        # 從命令行參數獲取 genre，如果沒有提供則使用默認值
-        genre_name = sys.argv[1] if len(sys.argv) > 1 else "お色気"
+        # 從命令行參數獲取 genres
+        if len(sys.argv) > 2:
+            # 如果有兩個參數
+            genre_names = [sys.argv[1], sys.argv[2]]
+        elif len(sys.argv) > 1:
+            # 如果只有一個參數
+            genre_names = [sys.argv[1]]
+        else:
+            # 默認值
+            genre_names = ["お色気"]
         
-        output_path = query.generate_html(genre_name)
+        output_path = query.generate_html(genre_names)
         print(f"HTML file generated: {output_path}")
     finally:
         query.close()
