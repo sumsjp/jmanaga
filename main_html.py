@@ -12,7 +12,10 @@ def get_genre_list():
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            genres.append((row['genre'], int(row['manga_count'])))
+            count = int(row['manga_count'])
+            if count < 100:
+                continue
+            genres.append((row['genre'], count))
     
     return genres
 
@@ -58,7 +61,7 @@ def generate_main_html(genres):
 
     output_dir = Path("html")
     output_dir.mkdir(exist_ok=True)
-    output_path = output_dir / "main.html"
+    output_path = output_dir / "index.html"
     output_path.write_text(html_content, encoding="utf-8")
     return output_path
 
