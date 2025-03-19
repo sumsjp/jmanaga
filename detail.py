@@ -164,16 +164,9 @@ class MangaDetailScraper:
             logger.error(f"Failed to parse related manga: {e}")
             return []
 
-    def save_to_json(self, manga_detail: MangaDetail) -> None:
+    def save_to_json(self, manga_detail: MangaDetail, file_path: Path) -> None:
         """Save manga detail to JSON file."""
         try:
-            # 清理標題中的非法字符，以便用作文件名
-            safe_title = "".join(c for c in manga_detail.title if c.isalnum() or c in (' ', '-', '_'))
-            safe_title = safe_title.strip()
-            
-            # 構建完整的文件路徑
-            file_path = self.docs_dir / f"{safe_title}.json"
-            
             # 將 MangaDetail 對象轉換為字典
             manga_dict = {
                 'title': manga_detail.title,

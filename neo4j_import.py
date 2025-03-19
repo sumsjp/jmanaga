@@ -17,19 +17,32 @@ driver = GraphDatabase.driver(uri, auth=(username, password))
 def create_manga_entity(tx, manga):
     cypher = """
     MERGE (m:Manga {url: $url})  // 使用 URL 作为唯一标识符
-    ON CREATE SET
-        m.name = $short_title,
-        m.title = $title,
-        m.chapters = toInteger($chapter_count),
-        m.image = $image
+    WITH m, 
+         CASE 
+             WHEN m.name IS NULL OR m.name = '' 
+             THEN true 
+             ELSE false 
+         END as shouldUpdate
+    
+    // 只在新建節點或 name 為空時更新所有屬性
+    SET m += CASE shouldUpdate
+        WHEN true THEN {
+            name: $short_title,
+            title: $title,
+            chapters: toInteger($chapter_count),
+            image: $image
+        }
+        ELSE {}
+        END
 
-    FOREACH (genre IN $genres |
+    // 只在新建節點或 name 為空時更新關係
+    FOREACH (genre IN CASE shouldUpdate WHEN true THEN $genres ELSE [] END |
         MERGE (g:Genre {name: genre})
         MERGE (m)-[:HAS_GENRE]->(g)
     )
 
-    FOREACH (relatedManga IN $related_manga |
-        MERGE (rm:Manga {url: relatedManga.url})  // 使用 URL 作为唯一标识符
+    FOREACH (relatedManga IN CASE shouldUpdate WHEN true THEN $related_manga ELSE [] END |
+        MERGE (rm:Manga {url: relatedManga.url})
         ON CREATE SET rm.title = relatedManga.title
         MERGE (m)-[:RELATED_TO]->(rm)
     )
