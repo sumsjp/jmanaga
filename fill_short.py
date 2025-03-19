@@ -11,18 +11,19 @@ load_result = load_dotenv()
 if not load_result:
     raise Exception(".env 檔案載入失敗")
 
-def get_todo_batch(processed_files):
+def get_todo_batch(json_files, processed_files):
     docs_path = Path('docs')
     todo_batch = []
     
     # 讀取所有 json 檔案
-    for json_file in docs_path.glob('*.json'):
+    for json_file in json_files:
         # 跳過已處理的檔案
         if str(json_file) in processed_files:
             continue
             
         with open(json_file, 'r', encoding='utf-8') as f:
             try:
+                # print(json_file)
                 data = json.load(f)
                 if not data.get('short_title'):  # 如果 short_title 是空的
                     todo_batch.append({
@@ -119,19 +120,49 @@ def process_batch(client, todo_batch):
         ),
     )
 
-    response = ""
-    for chunk in client.models.generate_content_stream(
-        model=model,
-        contents=contents,
-        config=generate_content_config,
-    ):
-        response += chunk.text
-    
     try:
-        return json.loads(response)
-    except json.JSONDecodeError:
-        print("Failed to parse API response")
-        print("Response:", response)
+        response = ""
+        for chunk in client.models.generate_content_stream(
+            model=model,
+            contents=contents,
+            config=generate_content_config,
+        ):
+            if hasattr(chunk, 'text'):
+                response += chunk.text
+            else:
+                print("Warning: Received chunk without text")
+                continue
+
+        # 確保回應是有效的 JSON 格式
+        if not response.strip().startswith('[') or not response.strip().endswith(']'):
+            print("Invalid JSON response format")
+            print("Response:", response)
+            return []
+
+        try:
+            results = json.loads(response)
+            if not isinstance(results, list):
+                print("Response is not a list")
+                print("Response:", response)
+                return []
+                
+            # 驗證每個結果是否符合預期格式
+            valid_results = []
+            for result in results:
+                if isinstance(result, dict) and 'title' in result and 'short' in result:
+                    valid_results.append(result)
+                else:
+                    print(f"Invalid result format: {result}")
+                    
+            return valid_results
+
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error: {e}")
+            print("Response:", response)
+            return []
+            
+    except Exception as e:
+        print(f"Error during API call: {e}")
         return []
 
 def generate():
@@ -139,12 +170,15 @@ def generate():
         api_key=os.environ.get("GEMINI_API_KEY"),
     )
 
+    json_files = sorted(Path('docs').glob('*.json'))
     processed_files = set()
     batch_count = 0
+    retry_count = 0
+    max_retries = 3
     
     while True:
         # 取得下一批要處理的檔案
-        todo_batch = get_todo_batch(processed_files)
+        todo_batch = get_todo_batch(json_files, processed_files)
         
         if not todo_batch:
             print("All files have been processed")
@@ -160,13 +194,22 @@ def generate():
             updated_files = update_json_files(todo_batch, results)
             processed_files.update(updated_files)
             print(f"Successfully processed {len(updated_files)} files in batch {batch_count}")
+            retry_count = 0  # 重置重試計數
             
             # 在批次之間暫停一下，避免過度請求
-            if len(todo_batch) == 50:  # 改為如果是滿50筆，表示可能還有下一批
+            if len(todo_batch) == 50:
                 print("Waiting 5 seconds before next batch...")
                 sleep(5)
         else:
-            print(f"Failed to process batch {batch_count}")
+            retry_count += 1
+            if retry_count >= max_retries:
+                print(f"Failed to process batch after {max_retries} attempts. Moving to next batch...")
+                retry_count = 0
+                continue
+                
+            print(f"Failed to process batch {batch_count}, retrying in 10 seconds... (Attempt {retry_count}/{max_retries})")
+            sleep(10)
+            continue
             
     print(f"\nCompleted processing all files in {batch_count} batches")
     print(f"Total files processed: {len(processed_files)}")

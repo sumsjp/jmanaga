@@ -34,55 +34,54 @@ class JMangaScraper:
             'Connection': 'keep-alive',
         })
 
-    def get_manga_list(self, start_page, end_page) -> List[MangaItem]:
+    def get_manga_list(self, page) -> List[MangaItem]:
         """Fetch and parse the manga list from multiple pages."""
         all_manga_items = []
         
-        for page in range(start_page, end_page + 1):
-            url = f"{self.RAW_MANGA_BASE_URL}?p={page}"
-            try:
-                logger.info(f"Fetching manga list from page {page}: {url}")
-                response = self.session.get(url)
-                response.raise_for_status()
+        url = f"{self.RAW_MANGA_BASE_URL}?p={page}"
+        try:
+            logger.info(f"Fetching manga list from page {page}: {url}")
+            response = self.session.get(url)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            manga_details = soup.find_all('div', class_='manga-detail')
+            
+            if not manga_details:
+                logger.info(f"No manga found on page {page}, stopping pagination")
+                return
                 
-                soup = BeautifulSoup(response.text, 'html.parser')
-                manga_details = soup.find_all('div', class_='manga-detail')
-                
-                if not manga_details:
-                    logger.info(f"No manga found on page {page}, stopping pagination")
-                    break
+            logger.info(f"Found {len(manga_details)} manga entries on page {page}")
+            
+            for detail in manga_details:
+                try:
+                    # Get title and URL from the manga-name section
+                    title_element = detail.find('h3', class_='manga-name').find('a')
+                    title = title_element.get('title', '').strip()
+                    url = title_element.get('href', '').strip()
                     
-                logger.info(f"Found {len(manga_details)} manga entries on page {page}")
-                
-                for detail in manga_details:
-                    try:
-                        # Get title and URL from the manga-name section
-                        title_element = detail.find('h3', class_='manga-name').find('a')
-                        title = title_element.get('title', '').strip()
-                        url = title_element.get('href', '').strip()
-                        
-                        # Get genres from fd-infor section
-                        genres = []
-                        genre_elements = detail.find('div', class_='fd-infor').find_all('a')
-                        for genre in genre_elements:
-                            genre_text = genre.get_text().strip()
-                            if genre_text:
-                                genres.append(genre_text)
-                        
-                        all_manga_items.append(MangaItem(
-                            title=title,
-                            url=url,
-                            genres=genres
-                        ))
-                        
-                    except Exception as e:
-                        logger.error(f"Error parsing manga entry on page {page}: {e}")
-                        continue
-                
-            except requests.RequestException as e:
-                logger.error(f"Failed to fetch manga list for page {page}: {e}")
-                continue
-                
+                    # Get genres from fd-infor section
+                    genres = []
+                    genre_elements = detail.find('div', class_='fd-infor').find_all('a')
+                    for genre in genre_elements:
+                        genre_text = genre.get_text().strip()
+                        if genre_text:
+                            genres.append(genre_text)
+                    
+                    all_manga_items.append(MangaItem(
+                        title=title,
+                        url=url,
+                        genres=genres
+                    ))
+                    
+                except Exception as e:
+                    logger.error(f"Error parsing manga entry on page {page}: {e}")
+                    continue
+            
+        except requests.RequestException as e:
+            logger.error(f"Failed to fetch manga list for page {page}: {e}")
+            return
+            
         logger.info(f"Total manga items collected: {len(all_manga_items)}")
         return all_manga_items
 
@@ -103,50 +102,52 @@ class JMangaScraper:
 
 def main(start_page, end_page):
     scraper = JMangaScraper()
-    manga_list = scraper.get_manga_list(start_page, end_page)
+
+    for page in range(start_page, end_page + 1):
+        manga_list = scraper.get_manga_list(page)
     
-    if manga_list:
-        logger.info(f"Successfully scraped {len(manga_list)} manga titles")
-        
-        # 確保 docs 目錄存在
-        docs_dir = Path('docs')
-        docs_dir.mkdir(exist_ok=True)
-        
-        # 初始化 detail scraper
-        detail_scraper = MangaDetailScraper()
-        
-        # 處理每個漫畫
-        for manga in manga_list:
-            # 創建安全的文件名
-            safe_title = "".join(c for c in manga.title if c.isalnum() or c in (' ', '-', '_'))
-            safe_title = safe_title.strip()
-            json_path = docs_dir / f"{safe_title}.json"
+        if manga_list:
+            logger.info(f"Successfully scraped {len(manga_list)} manga titles")
             
-            # 檢查文件是否存在
-            if not json_path.exists():
-                logger.info(f"Fetching details for: {manga.title}")
-                try:
-                    # 獲取並保存詳細信息
-                    manga_detail = detail_scraper.get_manga_detail(manga.url)
-                    if manga_detail:
-                        detail_scraper.save_to_json(manga_detail)
-                    else:
-                        logger.warning(f"Failed to get details for: {manga.title}")
-                except Exception as e:
-                    logger.error(f"Error processing {manga.title}: {e}")
-                sleep(1)
-            else:
-                logger.info(f"Details already exist for: {manga.title}")
-        
-        # 打印樣本信息
-        print("\nSample of manga list:")
-        for manga in manga_list[:5]:  # 只顯示前5個
-            print(f"\nTitle: {manga.title}")
-            print(f"URL: {manga.url}")
-            print(f"Genres: {', '.join(manga.genres)}")
-    else:
-        logger.warning("No manga found")
+            # 確保 docs 目錄存在
+            docs_dir = Path('docs')
+            docs_dir.mkdir(exist_ok=True)
+            
+            # 初始化 detail scraper
+            detail_scraper = MangaDetailScraper()
+            
+            # 處理每個漫畫
+            for manga in manga_list:
+                # 創建安全的文件名
+                safe_title = "".join(c for c in manga.title if c.isalnum() or c in (' ', '-', '_'))
+                safe_title = safe_title.strip()
+                json_path = docs_dir / f"{safe_title}.json"
+                
+                # 檢查文件是否存在
+                if not json_path.exists():
+                    logger.info(f"Fetching details for: {manga.title}")
+                    try:
+                        # 獲取並保存詳細信息
+                        manga_detail = detail_scraper.get_manga_detail(manga.url)
+                        if manga_detail:
+                            detail_scraper.save_to_json(manga_detail)
+                        else:
+                            logger.warning(f"Failed to get details for: {manga.title}")
+                    except Exception as e:
+                        logger.error(f"Error processing {manga.title}: {e}")
+                    sleep(0.5)
+                else:
+                    logger.info(f"Details already exist for: {manga.title}")
+            
+            # 打印樣本信息
+            print("\nSample of manga list:")
+            for manga in manga_list[:5]:  # 只顯示前5個
+                print(f"\nTitle: {manga.title}")
+                print(f"URL: {manga.url}")
+                print(f"Genres: {', '.join(manga.genres)}")
+        else:
+            logger.warning("No manga found")
 
 if __name__ == "__main__":
-    main(1, 50)
+    main(101, 223)
     sleep(2)
