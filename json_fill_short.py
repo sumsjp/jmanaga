@@ -12,7 +12,7 @@ if not load_result:
     raise Exception(".env 檔案載入失敗")
 
 def get_todo_batch(json_files, processed_files):
-    docs_path = Path('docs')
+    docs_path = Path('docs_jmanga')
     todo_batch = []
     
     # 讀取所有 json 檔案
@@ -170,7 +170,7 @@ def generate():
         api_key=os.environ.get("GEMINI_API_KEY"),
     )
 
-    json_files = sorted(Path('docs').glob('*.json'))
+    json_files = sorted(Path('docs_jmanga').glob('*.json'))
     processed_files = set()
     batch_count = 0
     retry_count = 0

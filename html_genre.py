@@ -95,7 +95,7 @@ class MangaQuery:
         filename = "_".join(genre_names) + ".html"
         
         # Save HTML file
-        output_dir = Path("html")
+        output_dir = Path("docs")
         output_dir.mkdir(exist_ok=True)
         output_path = output_dir / filename
         output_path.write_text(html_content, encoding="utf-8")

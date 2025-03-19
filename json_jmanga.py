@@ -104,7 +104,7 @@ def main(genre, start_page, end_page):
     scraper = JMangaScraper(genre)
 
     # 確保目錄存在
-    docs_dir = Path('docs')
+    docs_dir = Path('docs_jmanga')
     docs_imported_dir = Path('docs_imported')
     docs_dir.mkdir(exist_ok=True)
     docs_imported_dir.mkdir(exist_ok=True)
@@ -132,10 +132,10 @@ def main(genre, start_page, end_page):
                 if not docs_path.exists() and not docs_imported_path.exists():
                     logger.info(f"Fetching details for: {manga.title}")
                     try:
-                        # 獲取並保存詳細信息到 docs 目錄
+                        # 獲取並保存詳細信息到 docs_jmanga 目錄
                         manga_detail = detail_scraper.get_manga_detail(manga.url)
                         if manga_detail:
-                            # 保存到 docs 目錄
+                            # 保存到 docs_jmanga 目錄
                             detail_scraper.save_to_json(manga_detail, docs_path)
                         else:
                             logger.warning(f"Failed to get details for: {manga.title}")
@@ -143,7 +143,7 @@ def main(genre, start_page, end_page):
                         logger.error(f"Error processing {manga.title}: {e}")
                     sleep(0.5)
                 else:
-                    logger.info(f"Details already exist for: {manga.title} in {'docs' if docs_path.exists() else 'docs_imported'}")
+                    logger.info(f"Details already exist for: {manga.title} in {'docs_jmanga' if docs_path.exists() else 'docs_imported'}")
             
             # 打印樣本信息
             print("\nSample of manga list:")

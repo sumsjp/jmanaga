@@ -36,8 +36,8 @@ class MangaDetailScraper:
             'Accept-Language': 'en-US,en;q=0.5',
             'Connection': 'keep-alive',
         })
-        # 確保 docs 目錄存在
-        self.docs_dir = Path('docs')
+        # 確保 docs_jmanga 目錄存在
+        self.docs_dir = Path('docs_jmanga')
         self.docs_dir.mkdir(exist_ok=True)
 
     def fetch_and_save_html(self, url: str, filename: str = "test.html") -> Optional[str]:

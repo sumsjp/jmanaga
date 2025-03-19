@@ -8,7 +8,7 @@ username = "neo4j"
 password = "jack1234"  # 更改为你的密码
 
 # JSON 文件目录
-json_dir = "./docs/"  # 更改为你的 JSON 文件目录
+json_dir = "./docs_jmanga/"  # 更改为你的 JSON 文件目录
 
 # 创建 Neo4j 驱动程序实例
 driver = GraphDatabase.driver(uri, auth=(username, password))
