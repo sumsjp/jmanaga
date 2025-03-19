@@ -116,7 +116,7 @@ def main():
         refiner.merge_genre("恋愛", ["ラブストーリー", "ロマンス", "恋愛ファンタジー", "純愛", "女子高生"])
         refiner.merge_genre("ドラマ", ["ヒューマンドラマ", "人間ドラマ", "ドラマ化"])
         refiner.merge_genre("オトナ", ["オトナコミック", "オトナ向け", "成人向け", "大人向け"])
-        refiner.merge_genre("エッチ", ["Ecchi", "お色気", "エロい", "エロ"])
+        refiner.merge_genre("エッチ", ["Ecchi", "お色気", "エロい", "エロ", "巨乳", "爆乳", "むちむち"])
         refiner.merge_genre("学園", ["学校生活", "先生", "女子校生", "JK", "同級生",
                                    "女子大生", "学園モノ", "大学生", "高校生", "学生", "k高校生", "女教師"])
         refiner.merge_genre("SF", ["-SF-"])
@@ -125,19 +125,23 @@ def main():
         refiner.merge_genre("少女漫画", ["少女", "少女マンガ"])
         refiner.merge_genre("女性漫画", ["女性マンガ"])
         refiner.merge_genre("ミステリー", ["ミステリー/ホラー", "ホラー", "サスペンス", "吸血鬼"])
-        refiner.merge_genre("歴史", ["ロマンスA 超自然的 / 歴史", "古代～飛鳥･奈良", "戦国", "三国志", "歴史的"])
+        refiner.merge_genre("歴史", ["ロマンスA 超自然的 / 歴史", "古代～飛鳥･奈良", "戦国", "三国志", "歴史的",
+                                   "明治維新", "戦国･安土桃山時代", "幕末", "江戸時代(武士･時代劇)", "近代(明治以降)"])
         refiner.merge_genre("料理", ["料理･グルメ", "グルメ"])
-        refiner.merge_genre("貴族", ["王様"])
-        refiner.merge_genre("小説", ["小説家になろう", "なろう系", "WEB小説", "コミカライズ(小説"])
+        refiner.merge_genre("貴族", ["王様", "王女", "姫"])
+        refiner.merge_genre("小説", ["小説家になろう", "なろう系", "WEB小説", "コミカライズ(小説", "ラノベ"])
         refiner.merge_genre("ゲーム", ["ゲームコミカライズ", "デスゲーム", "乙女ゲーム", "ゲーム)"])
         refiner.merge_genre("百合", ["GL"])
-        refiner.merge_genre("アニメ化", ["映画化"])
-        refiner.merge_genre("生活", ["くらし"])
-        refiner.merge_genre("家族", ["妹", "義母", "浮気", "不倫", "姉"])
+        refiner.merge_genre("アニメ化", ["映画化", "メディア化"])
+        refiner.merge_genre("生活", ["くらし", "日常", "くらし。生活"])
+        refiner.merge_genre("家族", ["妹", "義母", "浮気", "不倫", "姉", "人妻", "幼なじみ", "姉妹"])
         refiner.merge_genre("特典", ["シーモア限定特典付き", "電子特典付き", "独占配信"])
         refiner.merge_genre("大賞", ["電子コミック大賞2018", "電子コミック大賞2019", "電子コミック大賞2020", "電子コミック大賞2021", 
                                    "電子コミック大賞2022", "電子コミック大賞2023", "電子コミック大賞2024", "電子コミック大賞2025"])
-
+        refiner.merge_genre("ハーレム", ["複数プレイ"])
+        refiner.merge_genre("スポーツ", ["野球･ソフトボール"])
+        refiner.merge_genre("動物", ["ペット"])
+        
         # 使用新的 split_genre 函數
         refiner.split_genre("TL小説", ["TL", "小説"])
         refiner.split_genre("ロマンス小説", ["恋愛", "小説"])
