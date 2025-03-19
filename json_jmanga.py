@@ -6,7 +6,7 @@ import logging
 from typing import List
 from dataclasses import dataclass
 from pathlib import Path
-from detail import MangaDetailScraper
+from json_mange_detail import MangaDetailScraper
 from time import sleep
 
 logging.basicConfig(

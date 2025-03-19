@@ -1,7 +1,7 @@
 from pathlib import Path
 import csv
-from list_genre import list_genres
-from query import MangaQuery
+from db_genre_list import list_genres
+from html_genre import MangaQuery
 import html
 
 def get_genre_list():
