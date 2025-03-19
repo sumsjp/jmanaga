@@ -138,3 +138,58 @@ h1 {
     min-height: 500px;
     padding: 20px 0;
 }
+
+/* 新增響應式設計 */
+@media screen and (max-width: 600px) {
+    body {
+        margin: 10px;
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        margin: 15px 0;
+    }
+    
+    .genre-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .genre-card {
+        padding: 8px;
+    }
+    
+    .genre-name {
+        font-size: 0.9em;
+    }
+    
+    .manga-count {
+        font-size: 0.8em;
+    }
+
+    .manga-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .manga-card {
+        padding: 8px;
+    }
+
+    .manga-title {
+        font-size: 0.9em;
+    }
+
+    .manga-info {
+        font-size: 0.8em;
+    }
+
+    .genres span {
+        font-size: 0.75em;
+        padding: 1px 4px;
+        margin-right: 3px;
+        margin-bottom: 3px;
+    }
+}

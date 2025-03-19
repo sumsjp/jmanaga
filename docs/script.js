@@ -75,3 +75,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// 添加顯示寬度的函數
+function updateWidth() {
+    const debugWidth = document.getElementById('debug-width');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    debugWidth.textContent = `${width}px × ${height}px`;
+}
+
+// 頁面加載時顯示寬度
+window.addEventListener('load', updateWidth);
+
+// 視窗大小改變時更新寬度
+window.addEventListener('resize', updateWidth);
