@@ -113,7 +113,7 @@ def main():
             genre_names = [sys.argv[1]]
         else:
             # 默認值
-            genre_names = ["お色気"]
+            genre_names = ["異世界"]
         
         output_path = query.generate_html(genre_names)
         print(f"HTML file generated: {output_path}")
